@@ -69,6 +69,7 @@ async function editor(data){
   const googleSheets=google.sheets({version:"v4",auth:client});
   const spreadsheetId=prompt("Enter the spreadsheetID: ");
   var pastingArray=new Array(13);
+  var taxes=new Array(2);
   var otherRevenue=0;
   var startRow=7;
   for(var i=0;i<data.length;i++){
@@ -81,8 +82,9 @@ async function editor(data){
     }
     var index=undefined;
     if(data[i].indexOf("TAX1")!=-1){
-
+			taxes[0]=int;
     }else if(data[i].indexOf("TAX2")!=-1){
+		taxes[1]=int;
     }else if(data[i].indexOf("AX")!=-1){
       index=7;
     }else if(data[i].indexOf("CA")!=-1){
@@ -123,13 +125,21 @@ async function editor(data){
       await googleSheets.spreadsheets.values.update({
           auth,
           spreadsheetId,
-          range:`Sheet2!C${startRow}:O${startRow}`,
+          range:`Room Payments!C${startRow}:O${startRow}`,
           valueInputOption:"USER_ENTERED",
           resource: {values:[pastingArray]}
+          });
+		await googleSheets.spreadsheets.values.update({
+          auth,
+          spreadsheetId,
+          range:`Tax!D${startRow}:E${startRow}`,
+          valueInputOption:"USER_ENTERED",
+          resource: {values:[taxes]}
           });
       startRow++;
       otherRevenue=0;
       pastingArray=new Array(13);
+	  taxes=new Array(2);
 
     }
     if(index!=undefined){
