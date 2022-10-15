@@ -32,7 +32,7 @@ async function convertPdfToHtml(){
     extractor(file);
 }
 async function extractor(file){
-  const html=fs.readFileSync(file);
+  const html=fs.readFileSync("../"+file);
   const content=cheerio.load(html);
   var body=content(".s2,.s3,.s4,.s5,.s6,.s1,h1,h2,p,h3");
   var array=[];
