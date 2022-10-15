@@ -2,6 +2,7 @@ const fs = require('fs');
 const cheerio= require('cheerio');
 const puppeteer = require('puppeteer');
 const {google}=require('googleapis');
+const prompt= require('prompt-sync')();
 async function convertPdfToHtml(){
     let launchOptions = { headless:false, args: ['--start-maximized']};
     const browser = await puppeteer.launch(launchOptions);
@@ -66,7 +67,7 @@ async function editor(data){
 });
   const client=await auth.getClient();
   const googleSheets=google.sheets({version:"v4",auth:client});
-  const spreadsheetId="1cjB-oWrcFZFT0MLoHzojTn7sLzYSSWWN7XEVbIBByx4";
+  const spreadsheetId=prompt("Enter the spreadsheetID: ");
   var pastingArray=new Array(13);
   var otherRevenue=0;
   var startRow=7;
@@ -139,4 +140,5 @@ async function editor(data){
 
   }
 }
-extractor("../23574-Report.html")
+const file=prompt("Enter the name of file:");
+extractor(file);
