@@ -98,17 +98,29 @@ async function editor(data){
     }else if(data[i].indexOf("MC")!=-1){
       index=4;
     }else if(data[i].indexOf("PETS")!=-1){
-      otherRevenue+=int;
+		if(data[i].indexOf("(")!=-1){
+			otherRevenue-=int;
+		}else{
+			otherRevenue+=int;
+		}
       index=undefined;
     }else if(data[i].indexOf("RM")!=-1){
       index=0;
     }else if(data[i].indexOf("VI")!=-1){
       index=3;
     }else if(data[i].indexOf("MISC")!=-1){
-      otherRevenue+=int;
+      if(data[i].indexOf("(")!=-1){
+			otherRevenue-=int;
+		}else{
+			otherRevenue+=int;
+		}
       index=undefined;
     }else if(data[i].indexOf("XBED")!=-1){
-      otherRevenue+=int;
+      if(data[i].indexOf("(")!=-1){
+			otherRevenue-=int;
+		}else{
+			otherRevenue+=int;
+		}
       index=undefined;
     }else if(data[i].indexOf("/")!=-1){
       pastingArray[2]=otherRevenue;
