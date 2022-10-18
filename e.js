@@ -36,8 +36,26 @@ async function extractor(file){
   const content=cheerio.load(html);
   var body=content(".s2,.s3,.s4,.s5,.s6,.s1,h1,h2,p,h3");
   var array=[];
+  var dCounter=0;
+  var dCondition=false;
   for(var i=0;i<body.length;i++){
-      var condition=false;
+     var condition=false;
+	if(content(body[i]).text().includes("DIRECT")){
+		dCondition=true;
+	}if(content(body[i]).text().includes("Total for DR")){
+		console.log("Total for: "+dCounter);
+		dCounter=0;
+		dCondition=false;
+	}if(dCondition){
+		if(content(body[i]).text().includes("$")){
+			
+			//console.log(content(body[i]).text());
+			if(content(body[i]).text().indexOf("(")==-1){
+				var money=content(body[i]).text().replaceAll("$","").replaceAll(",","");
+				dCounter+=parseFloat(money);
+			}
+		}
+	}
     if(content(body[i]).text().includes("Total")){
       condition=true
     if(content(body[i+1]).text().includes("$")&&(!content(body[i+1]).text().includes("Total"))){
@@ -55,7 +73,8 @@ async function extractor(file){
     }
 
   }
-  editor(array);
+  console.log(dCounter);
+ // editor(array);
 
   //fs.unlinkSync(file);
 }
@@ -125,9 +144,7 @@ async function editor(data){
     }else if(data[i].indexOf("/")!=-1){
       pastingArray[2]=otherRevenue;
       pastingArray[5]=pastingArray[3]+pastingArray[4];
-      pastingArray[8]="";
-      pastingArray[9]="";
-      pastingArray[12]="";
+      
       for(d=0;d<pastingArray.length;d++){
         if(pastingArray[d]==undefined){
           pastingArray[d]=0;
