@@ -31,10 +31,9 @@ const prompt= require('prompt-sync')();
 //     browser.close();
 //     //extractor(file);
 // }
-function reader(file,file1){
+function reader(file){
   var result1=extractor(file);
-  var result2=extractor(file1);
-  console.log(result2);
+  editor(result1);
 }
 function extractor(fileName){
   const html=fs.readFileSync("../"+fileName);
@@ -45,30 +44,22 @@ function extractor(fileName){
   var dCondition=false;
   for(var i=0;i<body.length;i++){
      var condition=false;
-	if(content(body[i]).text().includes("DIRECT")){
-		dCondition=true;
-	}if(content(body[i]).text().includes("Total for DR")){
-		console.log("Total for: "+dCounter);
-		dCounter=0;
-		dCondition=false;
-	}if(dCondition){
-		if(content(body[i]).text().includes("$")){
-			
-			//console.log(content(body[i]).text());
-			if(content(body[i]).text().indexOf("(")==-1){
-				var money=content(body[i]).text().replaceAll("$","").replaceAll(",","");
-				dCounter+=parseFloat(money);
-			}
-		}
-	}
+  	if(content(body[i]).text().includes("DIRECT")){
+  		dCondition=true;
+  	}
     if(content(body[i]).text().includes("Total")){
+      if(content(body[i]).text().includes("Total for DR")||(content(body[i+1]).text().includes("DR")&&(!content(body[i+1]).text().includes("DIRECT")))) {
+        array.push("Total for DRE: $"+dCounter.toFixed(2));
+        dCounter=0;
+        dCondition=false;
+      }
       condition=true
-    if(content(body[i+1]).text().includes("$")&&(!content(body[i+1]).text().includes("Total"))){
-      condition=false;
-      var pushText=content(body[i]).text()+content(body[i+1]).text();
-      array.push(pushText);
+      if(content(body[i+1]).text().includes("$")&&(!content(body[i+1]).text().includes("Total"))){
+        condition=false;
+        var pushText=content(body[i]).text()+content(body[i+1]).text();
+        array.push(pushText);
+      }
     }
-  }
     if(condition){
       var pushText=content(body[i]).text();
       if(pushText.trim()=="Total"){
@@ -76,15 +67,16 @@ function extractor(fileName){
       }
       array.push(pushText);
     }
+    if(dCondition){
+  		if(content(body[i]).text().includes("$")){
+  			if(content(body[i]).text().indexOf("(")==-1){
+  				var money=content(body[i]).text().replaceAll("$","").replaceAll(",","");
+  				dCounter+=parseFloat(money);
+  			}
+  		}
+  	}
   }
-<<<<<<< HEAD
-  console.log(dCounter);
- // editor(array);
-
-  //fs.unlinkSync(file);
-=======
   return array;
->>>>>>> be9e809c3ffc1365326b745b05f41aa1704e7923
 }
 async function editor(data){
   const auth=new google.auth.GoogleAuth(
@@ -114,10 +106,8 @@ async function editor(data){
 		taxes[1]=int;
     }else if(data[i].indexOf("AX")!=-1){
       index=7;
-    }else if(data[i].indexOf("")!=-1){
-      index=;
-    }else if(data[i].indexOf("")!=-1){
-      index=;
+    }else if(data[i].indexOf("DRE")!=-1){
+      index=9;
     }else if(data[i].indexOf("CA")!=-1){
       index=10;
     }else if(data[i].indexOf("CK")!=-1){
@@ -156,7 +146,7 @@ async function editor(data){
     }else if(data[i].indexOf("/")!=-1){
       pastingArray[2]=otherRevenue;
       pastingArray[5]=pastingArray[3]+pastingArray[4];
-      
+
       for(d=0;d<pastingArray.length;d++){
         if(pastingArray[d]==undefined){
           pastingArray[d]=0;
@@ -189,5 +179,4 @@ async function editor(data){
   }
 }
 const file=prompt("Enter the name of regular file:");
-const file1=prompt("Enter the name of statistics report:");
-reader(file,file1);
+reader(file);
