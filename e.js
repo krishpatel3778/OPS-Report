@@ -3,36 +3,41 @@ const cheerio= require('cheerio');
 const puppeteer = require('puppeteer');
 const {google}=require('googleapis');
 const prompt= require('prompt-sync')();
-async function convertPdfToHtml(){
-    let launchOptions = { headless:false, args: ['--start-maximized']};
-    const browser = await puppeteer.launch(launchOptions);
-    const page = await browser.newPage();
-    await page.setViewport({width: 1366, height: 768});
-    await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36');
-    await page.goto('https://pdf.online/convert-pdf-to-html');
-    await page.waitForSelector('input[type=file]');
-    const inputUploadHandle = await page.$("#__next > div > div.css-1birzxg > div.main.css-10w2n2b > div > input[type=file]");
-    inputUploadHandle.uploadFile("23574-Report.pdf");
-    await page.waitForXPath('//*[@id="__next"]/div/div[2]/div[4]/div/div/div[2]/button',{timeout:0});
-    var convert=await page.evaluate(()=>document.querySelector('button.chakra-button.css-nado83').innerText);
-    page.click('button.chakra-button.css-nado83');
-    await page.waitForXPath('//*[@id="__next"]/div/div[2]/div[1]/div/div/div[2]/div/div[1]/div/div/div/div/div/div/div/div[3]/button[2]',{timeout:0});
-    var download= await page.evaluate(()=>document.querySelector('button.chakra-button.css-nado83').innerText);
-    await page.click('button.chakra-button.css-nado83');
-     var name=await page.evaluate(()=>document.querySelector("#__next > div > div.css-1birzxg > div.main.css-10w2n2b > div > div > div.css-sq9jg7 > div > div:nth-child(1) > div > div > div > div > div > div > div > div.css-rpw0u0").innerText);
-     var file="/Users/krish/Downloads/";
-    file+=name;
-    while(true){
-    var exists=await fs.existsSync(file);
-    if(exists){
-      break;
-    }
-  }
-    browser.close();
-    extractor(file);
+// async function convertPdfToHtml(){
+//     let launchOptions = { headless:false, args: ['--start-maximized']};
+//     const browser = await puppeteer.launch(launchOptions);
+//     const page = await browser.newPage();
+//     await page.setViewport({width: 1366, height: 768});
+//     await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36');
+//     await page.goto('https://pdf.online/convert-pdf-to-html');
+//     await page.waitForSelector('input[type=file]');
+//     const inputUploadHandle = await page.$("#__next > div > div.css-1birzxg > div.main.css-10w2n2b > div > input[type=file]");
+//     inputUploadHandle.uploadFile("23574-Report.pdf");
+//     await page.waitForXPath('//*[@id="__next"]/div/div[2]/div[4]/div/div/div[2]/button',{timeout:0});
+//     var convert=await page.evaluate(()=>document.querySelector('button.chakra-button.css-nado83').innerText);
+//     page.click('button.chakra-button.css-nado83');
+//     await page.waitForXPath('//*[@id="__next"]/div/div[2]/div[1]/div/div/div[2]/div/div[1]/div/div/div/div/div/div/div/div[3]/button[2]',{timeout:0});
+//     var download= await page.evaluate(()=>document.querySelector('button.chakra-button.css-nado83').innerText);
+//     await page.click('button.chakra-button.css-nado83');
+//      var name=await page.evaluate(()=>document.querySelector("#__next > div > div.css-1birzxg > div.main.css-10w2n2b > div > div > div.css-sq9jg7 > div > div:nth-child(1) > div > div > div > div > div > div > div > div.css-rpw0u0").innerText);
+//      var file="/Users/krish/Downloads/";
+//     file+=name;
+//     while(true){
+//     var exists=await fs.existsSync(file);
+//     if(exists){
+//       break;
+//     }
+//   }
+//     browser.close();
+//     //extractor(file);
+// }
+function reader(file,file1){
+  var result1=extractor(file);
+  var result2=extractor(file1);
+  console.log(result2);
 }
-async function extractor(file){
-  const html=fs.readFileSync("../"+file);
+function extractor(fileName){
+  const html=fs.readFileSync("../"+fileName);
   const content=cheerio.load(html);
   var body=content(".s2,.s3,.s4,.s5,.s6,.s1,h1,h2,p,h3");
   var array=[];
@@ -71,12 +76,15 @@ async function extractor(file){
       }
       array.push(pushText);
     }
-
   }
+<<<<<<< HEAD
   console.log(dCounter);
  // editor(array);
 
   //fs.unlinkSync(file);
+=======
+  return array;
+>>>>>>> be9e809c3ffc1365326b745b05f41aa1704e7923
 }
 async function editor(data){
   const auth=new google.auth.GoogleAuth(
@@ -106,6 +114,10 @@ async function editor(data){
 		taxes[1]=int;
     }else if(data[i].indexOf("AX")!=-1){
       index=7;
+    }else if(data[i].indexOf("")!=-1){
+      index=;
+    }else if(data[i].indexOf("")!=-1){
+      index=;
     }else if(data[i].indexOf("CA")!=-1){
       index=10;
     }else if(data[i].indexOf("CK")!=-1){
@@ -117,29 +129,29 @@ async function editor(data){
     }else if(data[i].indexOf("MC")!=-1){
       index=4;
     }else if(data[i].indexOf("PETS")!=-1){
-		if(data[i].indexOf("(")!=-1){
-			otherRevenue-=int;
-		}else{
-			otherRevenue+=int;
-		}
+  		if(data[i].indexOf("(")!=-1){
+  			otherRevenue-=int;
+  		}else{
+  			otherRevenue+=int;
+  		}
       index=undefined;
     }else if(data[i].indexOf("RM")!=-1){
       index=0;
     }else if(data[i].indexOf("VI")!=-1){
       index=3;
     }else if(data[i].indexOf("MISC")!=-1){
-      if(data[i].indexOf("(")!=-1){
-			otherRevenue-=int;
-		}else{
-			otherRevenue+=int;
-		}
+        if(data[i].indexOf("(")!=-1){
+  			otherRevenue-=int;
+  		}else{
+  			otherRevenue+=int;
+  		}
       index=undefined;
     }else if(data[i].indexOf("XBED")!=-1){
       if(data[i].indexOf("(")!=-1){
-			otherRevenue-=int;
-		}else{
-			otherRevenue+=int;
-		}
+  			otherRevenue-=int;
+  		}else{
+  			otherRevenue+=int;
+  		}
       index=undefined;
     }else if(data[i].indexOf("/")!=-1){
       pastingArray[2]=otherRevenue;
@@ -174,10 +186,8 @@ async function editor(data){
     if(index!=undefined){
       pastingArray[index]=int;
     }
-
-
-
   }
 }
-const file=prompt("Enter the name of file:");
-extractor(file);
+const file=prompt("Enter the name of regular file:");
+const file1=prompt("Enter the name of statistics report:");
+reader(file,file1);
