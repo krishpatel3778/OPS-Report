@@ -89,6 +89,10 @@ async function editor(data){
 		taxes[1]=int;
     }else if(data[i].indexOf("AX")!=-1){
       index=7;
+    }else if(data[i].indexOf("")!=-1){
+      index=;
+    }else if(data[i].indexOf("")!=-1){
+      index=;
     }else if(data[i].indexOf("CA")!=-1){
       index=10;
     }else if(data[i].indexOf("CK")!=-1){
@@ -159,9 +163,6 @@ async function editor(data){
     if(index!=undefined){
       pastingArray[index]=int;
     }
-
-
-
   }
 }
 const file=prompt("Enter the name of regular file:");
