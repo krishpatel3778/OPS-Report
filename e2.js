@@ -3,50 +3,56 @@ const cheerio= require('cheerio');
 const puppeteer = require('puppeteer');
 const {google}=require('googleapis');
 const prompt= require('prompt-sync')();
-function reader(file,file1){
+// async function convertPdfToHtml(){
+//     let launchOptions = { headless:false, args: ['--start-maximized']};
+//     const browser = await puppeteer.launch(launchOptions);
+//     const page = await browser.newPage();
+//     await page.setViewport({width: 1366, height: 768});
+//     await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36');
+//     await page.goto('https://pdf.online/convert-pdf-to-html');
+//     await page.waitForSelector('input[type=file]');
+//     const inputUploadHandle = await page.$("#__next > div > div.css-1birzxg > div.main.css-10w2n2b > div > input[type=file]");
+//     inputUploadHandle.uploadFile("23574-Report.pdf");
+//     await page.waitForXPath('//*[@id="__next"]/div/div[2]/div[4]/div/div/div[2]/button',{timeout:0});
+//     var convert=await page.evaluate(()=>document.querySelector('button.chakra-button.css-nado83').innerText);
+//     page.click('button.chakra-button.css-nado83');
+//     await page.waitForXPath('//*[@id="__next"]/div/div[2]/div[1]/div/div/div[2]/div/div[1]/div/div/div/div/div/div/div/div[3]/button[2]',{timeout:0});
+//     var download= await page.evaluate(()=>document.querySelector('button.chakra-button.css-nado83').innerText);
+//     await page.click('button.chakra-button.css-nado83');
+//      var name=await page.evaluate(()=>document.querySelector("#__next > div > div.css-1birzxg > div.main.css-10w2n2b > div > div > div.css-sq9jg7 > div > div:nth-child(1) > div > div > div > div > div > div > div > div.css-rpw0u0").innerText);
+//      var file="/Users/krish/Downloads/";
+//     file+=name;
+//     while(true){
+//     var exists=await fs.existsSync(file);
+//     if(exists){
+//       break;
+//     }
+//   }
+//     browser.close();
+//     //extractor(file);
+// }
+function reader(file){
   var result1=extractor(file);
-  var result2=extractor(file1);
-  var prevNumber=0;
-  var newResult2=[];
-  for(var x=0;x<result2.length;x++){
-    if(result2[x].indexOf("/")!=-1){
-      var number=parseInt(result2[x].split("/")[1]);
-      if((number-prevNumber)==1){
-        newResult2.push(result2[x-1]);
-        newResult2.push(result2[x]);
-        prevNumber=number;
-      }else{
-        for(var z=1;z<(number-prevNumber);z++){
-          newResult2.push("Total for DR $0.00");
-          newResult2.push("Added date /");
-        }
-        newResult2.push(result2[x-1]);
-        newResult2.push(result2[x]);
-        prevNumber=number;
-      }
-    }
-  }
-  var combined=[];
-  var re2=0;
-  for(var f=0;f<result1.length;f++){
-    if(result1[f].indexOf("/")!=-1){
-      combined.push(newResult2[re2]);
-      combined.push(result1[f]);
-      re2+=2;
-    }else{
-      combined.push(result1[f]);
-    }
-  }
-  editor(combined);
+  editor(result1);
 }
 function extractor(fileName){
   const html=fs.readFileSync("../"+fileName);
   const content=cheerio.load(html);
   var body=content(".s2,.s3,.s4,.s5,.s6,.s1,h1,h2,p,h3");
   var array=[];
+  var dCounter=0;
+  var dCondition=false;
   for(var i=0;i<body.length;i++){
      var condition=false;
+  	if(content(body[i]).text().includes("DIRECT")){
+  		dCondition=true;
+  	}
     if(content(body[i]).text().includes("Total")){
+      if(content(body[i]).text().includes("Total for DR")||(content(body[i+1]).text().includes("DR")&&(!content(body[i+1]).text().includes("DIRECT")))) {
+        array.push("Total for DRE: $"+dCounter.toFixed(2));
+        dCounter=0;
+        dCondition=false;
+      }
       condition=true
       if(content(body[i+1]).text().includes("$")&&(!content(body[i+1]).text().includes("Total"))){
         condition=false;
@@ -61,7 +67,14 @@ function extractor(fileName){
       }
       array.push(pushText);
     }
-
+    if(dCondition){
+  		if(content(body[i]).text().includes("$")){
+  			if(content(body[i]).text().indexOf("(")==-1){
+  				var money=content(body[i]).text().replaceAll("$","").replaceAll(",","");
+  				dCounter+=parseFloat(money);
+  			}
+  		}
+  	}
   }
   return array;
 }
@@ -93,10 +106,7 @@ async function editor(data){
 		taxes[1]=int;
     }else if(data[i].indexOf("AX")!=-1){
       index=7;
-    }else if(data[i].indexOf("DR")!=-1){
-      if(data[i].indexOf("(")!=-1){
-  			int*=-1;
-  		}
+    }else if(data[i].indexOf("DRE")!=-1){
       index=9;
     }else if(data[i].indexOf("CA")!=-1){
       index=10;
@@ -171,6 +181,5 @@ async function editor(data){
     }
   }
 }
-const file=prompt("Transactions total file name:");
-const file1=prompt("Daily Recievable file name:");
-reader(file,file1);
+const file=prompt("Enter the name of regular file:");
+reader(file);
