@@ -99,8 +99,14 @@ async function editor(data){
   		}
       index=9;
     }else if(data[i].indexOf("CA")!=-1){
+      if(data[i].indexOf("(")==-1){
+  			int*=-1;
+  		}
       index=10;
     }else if(data[i].indexOf("CK")!=-1){
+      if(data[i].indexOf("(")==-1){
+  			int*=-1;
+  		}
       index=11;
     }else if(data[i].indexOf("DS")!=-1){
       index=6;
